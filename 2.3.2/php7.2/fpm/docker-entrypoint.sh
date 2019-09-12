@@ -124,7 +124,6 @@ if [[ "$1" == apache2* ]] || [ "$1" == php-fpm ]; then
 			>> /etc/cron.d/magento2-cron
 		chmod 0644 /etc/cron.d/magento2-cron
 		crontab -u www-data /etc/cron.d/magento2-cron
-		service cron start
 	fi
 
 	# allow any of these required variables to be specified via
@@ -233,7 +232,8 @@ EOPHP
 			fi
 		done
 
-		if [ "$haveRequired" ]; then
+		# Check if Magento hasn't been setup yet
+		if [ "$haveRequired" ] && [ ! -e app/etc/env.php ]; then
 			# build up arguments in an array
 			# see https://stackoverflow.com/a/28678964
 			args=(
@@ -320,6 +320,9 @@ EOPHP
 	for e in "${envs[@]}"; do
 		unset "$e"
 	done
+
+	# Start cron service
+	service cron start
 fi
 
 exec "$@"
