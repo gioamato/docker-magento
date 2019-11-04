@@ -120,8 +120,8 @@ if [[ "$1" == apache2* ]] || [ "$1" == php-fpm ]; then
 * * * * * /usr/local/bin/php /var/www/html/bin/magento cron:run 2>&1 | grep -v "Ran jobs by schedule" >> /var/www/html/var/log/magento.cron.log
 * * * * * /usr/local/bin/php /var/www/html/update/cron.php >> /var/www/html/var/log/update.cron.log
 * * * * * /usr/local/bin/php /var/www/html/bin/magento setup:cron:run >> /var/www/html/var/log/setup.cron.log
-#~ MAGENTO END' \
-			>> /etc/cron.d/magento2-cron
+#~ MAGENTO END
+' >> /etc/cron.d/magento2-cron
 		chmod 0644 /etc/cron.d/magento2-cron
 		crontab -u www-data /etc/cron.d/magento2-cron
 	fi
