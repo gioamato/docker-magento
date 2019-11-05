@@ -111,19 +111,6 @@ if [[ "$1" == apache2* ]] || [ "$1" == php-fpm ]; then
 		find var generated vendor pub/static pub/media app/etc -type f -exec chmod g+w {} + \
 			&& find var generated vendor pub/static pub/media app/etc -type d -exec chmod g+ws {} + \
 			&& chmod u+x bin/magento
-
-		# adding Magento crontab and starting cron
-		# further reading https://devdocs.magento.com/guides/v2.3/config-guide/cli/config-cli-subcommands-cron.html
-		echo >&2 "Creating Magento crontab..."
-		printf \
-'#~ MAGENTO START
-* * * * * /usr/local/bin/php /var/www/html/bin/magento cron:run 2>&1 | grep -v "Ran jobs by schedule" >> /var/www/html/var/log/magento.cron.log
-* * * * * /usr/local/bin/php /var/www/html/update/cron.php >> /var/www/html/var/log/update.cron.log
-* * * * * /usr/local/bin/php /var/www/html/bin/magento setup:cron:run >> /var/www/html/var/log/setup.cron.log
-#~ MAGENTO END
-' >> /etc/cron.d/magento2-cron
-		chmod 0644 /etc/cron.d/magento2-cron
-		crontab -u www-data /etc/cron.d/magento2-cron
 	fi
 
 	# allow any of these required variables to be specified via
@@ -320,6 +307,20 @@ EOPHP
 	for e in "${envs[@]}"; do
 		unset "$e"
 	done
+
+	# adding Magento crontab and starting cron
+	# further reading https://devdocs.magento.com/guides/v2.3/config-guide/cli/config-cli-subcommands-cron.html
+	if [ ! -e /etc/cron.d/magento2-cron ]; then
+		echo >&2 "Creating Magento crontab..."
+		printf '#~ MAGENTO START
+* * * * * /usr/local/bin/php /var/www/html/bin/magento cron:run 2>&1 | grep -v "Ran jobs by schedule" >> /var/www/html/var/log/magento.cron.log
+* * * * * /usr/local/bin/php /var/www/html/update/cron.php >> /var/www/html/var/log/update.cron.log
+* * * * * /usr/local/bin/php /var/www/html/bin/magento setup:cron:run >> /var/www/html/var/log/setup.cron.log
+#~ MAGENTO END
+' >> /etc/cron.d/magento2-cron
+	chmod 0644 /etc/cron.d/magento2-cron
+	crontab -u www-data /etc/cron.d/magento2-cron
+	fi
 
 	# Start cron service
 	service cron start
