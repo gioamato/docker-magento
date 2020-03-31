@@ -17,6 +17,23 @@ services:
       MYSQL_USER: magento
       MYSQL_PASSWORD: magento
 
+  elasticsearch:
+    container_name: elasticsearch
+    image: elasticsearch:6.8.7
+    restart: always
+    environment:
+      - discovery.type=single-node
+
+  rabbitmq:
+    container_name: rabbitmq
+    image: rabbitmq:management
+    restart: always
+    environment:
+      RABBITMQ_DEFAULT_USER: magento
+      RABBITMQ_DEFAULT_PASS: magento
+    ports:
+      - "15672:15672"
+
   magento:
     container_name: magento
     build: ./custom
@@ -48,7 +65,17 @@ services:
       - mage-data:/var/www/html
     depends_on: 
       - magento
-    ports: 
-      - "8080:80"
     environment:
       UPSTREAM_SERVER: magento
+
+  varnish:
+    container_name: varnish
+    build: ./varnish
+    restart: always
+    depends_on:
+      - nginx
+    environment:
+      BACKEND_HOST: nginx
+      PURGE_HOST: magento
+    ports:
+      - "8080:80"
