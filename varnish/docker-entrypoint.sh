@@ -50,4 +50,11 @@ sed -i -e "s/BACKEND_HOST/$BACKEND_HOST/g" /etc/varnish/default.vcl
 echo >&2 "Setting '$PURGE_HOST' as purge host"
 sed -i -e "s/PURGE_HOST/$PURGE_HOST/g" /etc/varnish/default.vcl
 
+# this will check if the first argument is a flag
+# but only works if all arguments require a hyphenated flag
+# -v; -SL; -f arg; etc will work, but not arg1 arg2
+if [ "$#" -eq 0 ] || [ "${1#-}" != "$1" ]; then
+    set -- varnishd -F -f /etc/varnish/default.vcl -a http=:80,HTTP -a proxy=:8443,PROXY -s malloc,$VARNISH_SIZE "$@"
+fi
+
 exec "$@"
