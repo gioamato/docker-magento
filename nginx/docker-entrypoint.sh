@@ -45,4 +45,5 @@ sed -i -e "s/UPSTREAM_SERVER/$UPSTREAM_SERVER/g" /etc/nginx/conf.d/default.conf
 # wait upstream server availability then start NGINX service
 wait-for-it $UPSTREAM_SERVER:9000 --timeout=300 --strict
 echo >&2 "Starting NGINX service..."
+
 exec "$@"

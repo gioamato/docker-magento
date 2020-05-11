@@ -50,6 +50,10 @@ sed -i -e "s/BACKEND_HOST/$BACKEND_HOST/g" /etc/varnish/default.vcl
 echo >&2 "Setting '$PURGE_HOST' as purge host"
 sed -i -e "s/PURGE_HOST/$PURGE_HOST/g" /etc/varnish/default.vcl
 
+# wait backend host availability then start Varnish service
+wait-for-it $BACKEND_HOST:80 --timeout=300 --strict
+echo >&2 "Starting Varnish service..."
+
 # this will check if the first argument is a flag
 # but only works if all arguments require a hyphenated flag
 # -v; -SL; -f arg; etc will work, but not arg1 arg2
